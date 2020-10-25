@@ -1,0 +1,96 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PraktikumAufgabe1
+{
+    class Program
+
+    {
+        static void Main(string[] args)
+        {
+            double PreisPfeffer = 5.10;
+            double PreisPaprika = 3.90;                                         //Variablendeklaration; Preise beinhalten die MwSt. (Brutto)
+            double PreisCurry = 4.50;
+            double Versandkosten = 3.90;
+
+            Console.WriteLine("Herzlich Wilkommen bei Scharfe Küche!");
+            Console.OutputEncoding = System.Text.Encoding.UTF8;                 //Ermöglicht das Anzeigen von Sonderzeichen; hier "€"
+            Console.Write("\n\nPfeffer:\t(á 5,10€):\t"); double MengePfeffer = Convert.ToDouble(Console.ReadLine());
+            Console.Write("Paprika:\t(á 3,90€):\t"); double MengePaprika = Convert.ToDouble(Console.ReadLine());
+            Console.Write("Curry:\t\t(á 4,50€):\t"); double MengeCurry = Convert.ToDouble(Console.ReadLine());
+
+            double BestellwertPfeffer = MengePfeffer * PreisPfeffer;
+            double BestellwertPaprika = MengePaprika * PreisPaprika;
+            double BestellwertCurry = MengeCurry * PreisCurry;                  //Berechnung des Gesamtbestellwerts, Versandkosten nicht inkl., MwSt. inkl. 
+            double BestellwertGesamt = BestellwertPfeffer + BestellwertPaprika + BestellwertCurry;
+            double Mehrwertsteuer = (BestellwertGesamt / 1.16) * 0.16;         //Berechnung der Mehrwertsteuer, da Preise bereits Brutto sind
+            double Gesamtbestellung = BestellwertGesamt + Versandkosten;
+
+            if (BestellwertGesamt <= 10)
+            {
+                Console.WriteLine("\nIhre Bestellung erreicht nicht den Mindestbestellwert von 10,00 Euro\n");
+                //soweit fertig?
+            }
+
+            if (BestellwertGesamt > 10 && BestellwertGesamt <= 25)
+            {
+                Console.WriteLine($"\nBestellbestätigung durch Scharfe Küche:");
+                Console.Write($"Pfeffer\t\t\t\t {MengePfeffer} x {PreisPfeffer:f2}\t {BestellwertPfeffer:f2} EUR");
+                Console.Write($"\nPaprika\t\t\t\t {MengePaprika} x {PreisPaprika:f2}\t {BestellwertPaprika:f2} EUR");
+                Console.Write($"\nCurry\t\t\t\t {MengeCurry} x {PreisCurry:f2}\t {BestellwertCurry:f2} EUR");
+                Console.WriteLine("\n------------------------------------------------------------------");
+                Console.WriteLine($"ZwischenSumme\t\t\t\t\t {BestellwertGesamt:f2} EUR");
+                Console.WriteLine($"Enthaltene MwSt (16%)\t\t\t\t {Mehrwertsteuer:f2} EUR");
+                Console.WriteLine($"Versandpauschale \t\t\t\t {Versandkosten:f2} EUR");
+                Console.WriteLine("------------------------------------------------------------------");
+                Console.WriteLine($"Summe \t\t\t\t\t\t {Gesamtbestellung:f2} EUR");
+            }
+
+
+            if (BestellwertGesamt > 30)
+            {
+                Console.WriteLine($"\nBestellbestätigung durch Scharfe Küche:");
+                Console.Write($"Pfeffer\t\t\t\t {MengePfeffer} x {PreisPfeffer:f2}\t {BestellwertPfeffer:f2} EUR");
+                Console.Write($"\nPaprika\t\t\t\t {MengePaprika} x {PreisPaprika:f2}\t {BestellwertPaprika:f2} EUR");
+                Console.Write($"\nCurry\t\t\t\t {MengeCurry} x {PreisCurry:f2}\t {BestellwertCurry:f2} EUR");
+                Console.WriteLine("\n------------------------------------------------------------------");
+                Console.WriteLine($"ZwischenSumme\t\t\t\t\t {BestellwertGesamt:f2} EUR");
+                Console.WriteLine($"Enthaltene MwSt (16%)\t\t\t\t {Mehrwertsteuer:f2} EUR");
+                Console.WriteLine($"Versandpauschale \t\t\t\t {Versandkosten - Versandkosten:f2} EUR");
+                Console.WriteLine("------------------------------------------------------------------");
+                Console.WriteLine($"Summe \t\t\t\t\t\t {BestellwertGesamt:f2} EUR");
+            }
+
+            if (BestellwertGesamt <= 30 && BestellwertGesamt > 25)  //Noch nicht fertig
+            {
+                double Differenz = 30 - BestellwertGesamt;
+                Console.WriteLine($"\nBestellbestätigung durch Scharfe Küche:");
+                Console.WriteLine($"\nIhnen fehlen nur noch {Differenz:f2} Euro bis zum kostenfreien Versand!");
+                Console.WriteLine("Wollen Sie noch eine Dose Pfeffer mehr bestellen und den Versand\nsparen (ja|nein) ?");
+                if (Console.ReadLine() == "ja")
+                {
+                    ++MengePfeffer;                                             //Es wird der Bestellmenge eine Dose Pfeffer hinzugefügt.
+                    BestellwertPfeffer = BestellwertPfeffer + PreisPfeffer;
+                    BestellwertGesamt = BestellwertGesamt + PreisPfeffer;
+                    Mehrwertsteuer = Mehrwertsteuer + ((PreisPfeffer / 1.16) * 0.16);
+
+                    Console.WriteLine($"\nBestellbestätigung durch Scharfe Küche:");
+                    Console.Write($"Pfeffer\t\t\t\t {MengePfeffer} x {PreisPfeffer:f2}\t {BestellwertPfeffer:f2} EUR");
+                    Console.Write($"\nPaprika\t\t\t\t {MengePaprika} x {PreisPaprika:f2}\t {BestellwertPaprika:f2} EUR");
+                    Console.Write($"\nCurry\t\t\t\t {MengeCurry} x {PreisCurry:f2}\t  {BestellwertCurry:f2} EUR");
+                    Console.WriteLine("\n------------------------------------------------------------------");
+                    Console.WriteLine($"ZwischenSumme\t\t\t\t\t {BestellwertGesamt:f2} EUR");
+                    Console.WriteLine($"Enthaltene MwSt (16%)\t\t\t\t  {Mehrwertsteuer:f2} EUR");
+                    Console.WriteLine($"Versandpauschale \t\t\t\t  {Versandkosten - Versandkosten:f2} EUR");
+                    Console.WriteLine("------------------------------------------------------------------");
+                    Console.WriteLine($"Summe \t\t\t\t\t\t {BestellwertGesamt:f2} EUR");
+                }
+
+            }
+        }
+    }
+}
