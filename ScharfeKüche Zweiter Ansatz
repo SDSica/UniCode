@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Übung_Kueche
+{
+    class Program
+    {
+        const double Pfeffer = 5.10;
+        const double Paprika = 3.90;
+        const double Curry = 3.10;
+
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Herzlich Wilkommen bei Scharfe Küche!");
+            Console.Write($"Pfeffer\t(á) {Pfeffer:f}?):\t"); int PfefferMenge = Convert.ToInt32(Console.ReadLine());
+            Console.Write($"Paprika\t(á) {Paprika:f}?):\t"); int PaprikaMenge = Convert.ToInt32(Console.ReadLine());
+            Console.Write($"Paprika\t(á) {Curry:f}?):\t"); int CurryMenge = Convert.ToInt32(Console.ReadLine());
+
+            double Zwischensumme = PfefferMenge * Pfeffer + PaprikaMenge * Paprika + CurryMenge * Curry;
+            double Versandkosten;
+
+            if (Zwischensumme < 10)
+            {
+                Console.WriteLine("Ihre Bestellung erreicht nicht den Mindestbestellwert von 10,00");
+            }
+
+            else
+            {
+                if (Zwischensumme < 25) //Fall 1 <25
+                {
+                    Versandkosten = 3.90;
+                }
+                else if (Zwischensumme < 30) //Fall 2 25-30
+                {
+                    Console.Write($"Ihnen fehlen nur noch {30 - Zwischensumme:f} Euro bis zum kostenfreien Versand!");
+                    Console.Write($"Wollen Sie noch eine Dose Pfeffer mehr bestellen und den Versand sparen(ja | nein) ? "); string Extra = Console.ReadLine();
+
+                    if (Extra == "ja")
+                    {
+                        PfefferMenge++;
+                        Versandkosten = 0;
+                        Zwischensumme = Zwischensumme + Pfeffer;
+                    }
+                    else
+                    {
+                        Versandkosten = 3.90;
+                    }
+                }
+                else //fall 3 >30
+                {
+                    Versandkosten = 0;
+                }
+
+                double MwSt = ((Zwischensumme / 1.16) * 0.16);
+                Console.WriteLine("Bestellbestätigung durch Scharfe Küche:");
+                Console.WriteLine($"Pfeffer \t {PfefferMenge} x {Pfeffer:f}\t{PfefferMenge * Pfeffer:f} EUR");
+                Console.WriteLine($"Paprika \t {PaprikaMenge} x {Paprika:f}\t{PaprikaMenge * Paprika:f} EUR");
+                Console.WriteLine($"Curry \t\t {CurryMenge} x {Curry:f}\t{CurryMenge * Curry:f} EUR");
+                Console.WriteLine("-------------------------------------------");
+                Console.WriteLine($"Zwischensumme \t\t {Zwischensumme:f} EUR");
+                Console.WriteLine($"MwSt (16%)\t\t{MwSt:f} EUR");
+                Console.WriteLine($"Versandpauschale\t\t {Versandkosten:f} EUR");
+            }
+
+            
+
+
+
+
+        }
+    }
+}
