@@ -1,0 +1,4 @@
+Erklärung Console.WriteLine($"");
+
+ Console.WriteLine($"{zaehler}, {teiler}, {zahl}");
+                    Console.WriteLine(zaehler.ToString() +", "+ teiler.ToString() +", "+ zahl.ToString());
