@@ -1,0 +1,79 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Praktikumsaufgabe_3 {
+    class Program {
+
+        static double Max(double a, double b)                     //function in order to determine who wins (based on sum of cards)
+        {
+            if (a > b)
+                return a;
+            else
+                return b;
+        }
+        static void Main(string[] args)
+        {
+                    #region Playerpart
+            int credit = 10;
+            Console.WriteLine("Dein Guthaben: " + credit);
+            Console.Write("Dein Einsatz: ");
+            int wager = Convert.ToInt32(Console.ReadLine());
+            int amountcards = 0;                                   
+            int sumcards = 0;                                   
+
+            Random card = new Random();                           //random number between 2 and 11 (12 is exlusive); no array required.
+            while (amountcards < 2) {
+                amountcards++;
+                int onecard = card.Next(2, 12);
+                sumcards += onecard;
+                Console.WriteLine("Karte: " + onecard + ", Gesamt: " + sumcards);
+            }
+            while (sumcards < 21) {
+                Console.Write("Noch eine Karte (j/n)? ");           // problem here, box gets show after the pc has drawn their cards (no solution yet)
+                string another = Convert.ToString(Console.ReadLine());
+                if (another == "j") {
+                    int onecard = card.Next(2, 12);
+                    sumcards += onecard;
+                    Console.WriteLine("Karte: " + onecard + ", Gesamt: " + sumcards);
+
+                    if (sumcards > 21) {
+                        Console.WriteLine("Ich habe gewonnen.");
+                    } else if (sumcards == 21) {
+                        Console.WriteLine("Black Jack!");
+                    }
+                }
+                else if (another != "j") {                          // pc part starts here, if the player overdraws then there is no need for the pc to play
+                    Console.WriteLine("\nIch bin dran.");
+                    int sumcardspc = 0;
+                    int wagerpc = wager;
+                    #endregion
+                    #region PCPART
+                    while (sumcardspc < 17)
+                    {
+                            int onecard = card.Next(2, 12);
+                            sumcardspc += onecard;
+                            Console.WriteLine("Karte: " + onecard + ", Gesamt: " + sumcardspc);
+
+
+                            if (sumcardspc > 21)                     // need to implement one more loop so that wagers can be integrated (which loop?)
+                            {
+                                Console.WriteLine("Du hast gewonnen.");
+                            }
+                            else if (sumcardspc == 21)
+                            {
+                                Console.WriteLine("Ich habe gewonnen.");
+                            }
+                        }
+                        #endregion
+                    }
+
+
+            }
+        }
+
+
+    }
+}
