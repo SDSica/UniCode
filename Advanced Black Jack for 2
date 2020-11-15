@@ -1,0 +1,239 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Black_Jack_Advanced {
+    class Program {
+        static void Main(string[] args)
+        {
+            int credit1 = 10;
+            int credit2 = 10;
+            Play(ref credit1, ref credit2);
+            Console.WriteLine("\nEndergebnisse:");
+            Console.WriteLine($"Spieler 1 hat aus 10 Jetons {credit1} gemacht.");
+            Console.WriteLine($"Spieler 2 hat aus 10 Jetons {credit2} gemacht.");
+        }
+        public static void Play(ref int credit1, ref int credit2)
+        {
+            // Region: + Anklicken zum Ausklappen.
+            #region Deklarierte Variablen
+            bool player1turn = true;            // Hiermit werden die Züge der jeweiligen Spieler bzw. des PCs gesteuert.
+            bool player2turn = true;
+            bool pcturn = true;
+            int wagerpla1 = 0;                  // Einsatz der Spieler.
+            int wagerpla2 = 0;
+            int sumcards1 = 0;                  // Summe der Spieler bzw. des PCs.
+            int sumcards2 = 0;
+            int sumcardspc = 0;
+            int acesp1 = 0;                     // Anzahl der Asse (wichtig für die Anpassung falls Kartenwert > 21.
+            int acesp2 = 0;
+            int playernum1 = 1;                 // Wichtig für die Anzeige welcher Spieler derzeit spielt.
+            int playernum2 = 2;
+            bool startplay = true;              // Wichtig: Variablen werden hier definiert, da sie in jeder Schleife benötigt werden.
+            #endregion               
+            do {
+                do {
+                    Waging(ref credit1, ref wagerpla1, playernum1);        
+                    if (wagerpla1 == 0) {
+                        player1turn = false;    // Annahme: Jeder Spieler kann die jeweilige Runde aussetzen. Nur wenn beide 0 drücken, ist das Spiel vorbei.
+                    } else {
+                        Drawcards(ref credit1, ref sumcards1, ref player1turn, playernum1, ref acesp1);
+                        player1turn = false;    // Die Runde des Spielers wird beendet.
+                    }
+                } while (player1turn == true);
+                do {
+                    Waging(ref credit2, ref wagerpla2, playernum2);
+                    if (wagerpla2 == 0) {
+                        player2turn = false;
+                    } else {
+                        Drawcards(ref credit2, ref sumcards2, ref player2turn, playernum2, ref acesp2);
+                        player2turn = false;
+                    }
+                } while (player2turn == true);
+                if (wagerpla1 == 0 && wagerpla2 == 0) {
+                    pcturn = false;
+                    startplay = false;           // Hiermit kommt der Rechner gar nicht zum Zug und die Funktion wird beendet.
+                }
+                do {                             // Hier spielt der Rechner.
+                    if (wagerpla1 != 0 || wagerpla2 != 0) {
+                        DrawcardsPc(ref pcturn, ref sumcardspc);
+                        Results(wagerpla1, ref credit1, sumcards1, sumcardspc, playernum1);
+                        Results(wagerpla2, ref credit2, sumcards2, sumcardspc, playernum2);
+                        Console.WriteLine("\nRunde beendet.");
+                        Console.WriteLine("Ausgabe wird gereinigt für neues Spiel. Drücken Sie eine beliebige Taste.");
+                        Console.ReadKey(); 
+                        Console.Clear();                                     // Lediglich damit die Ausgabe gereinigt wird (Übersichtlichkeit); Kein zwingender Teil der Aufgabe.
+                        sumcards1 = 0;                                       // Summe der Karten wird auf 0 zurückgesetzt für ein neues Spiel.
+                        sumcards2 = 0;
+                        player1turn = true;                                  // Durch true Setzung wird die jeweilige Schleife des Spielers freigeschaltet: ein neues Spiel beginnt.
+                        player2turn = true;
+                        startplay = true;
+                    } else {
+                        pcturn = false;                                     
+                        startplay = false;
+                    }
+                } while (pcturn == true);
+            } while (startplay == true);
+        }
+        public static int Waging(ref int credit, ref int wager, int whichplayer)            // Hier wird der Einsatz platziert.
+        {
+            Console.WriteLine("\n~ ~ Spieler: " + whichplayer);
+            Console.WriteLine("Wie viel möchten Sie setzen? Setzen Sie 0 um das Spiel zu beenden.");
+            Console.WriteLine("Bitte geben Sie einen Wert zwischen 0 und 10 ein:");
+            wager = Convert.ToInt32(Console.ReadLine());                                    // TryParse Methode wurde hier nicht benutzt, da es meiner Meinung nach nicht ausreichend erklärt wurde (Dokumentation nicht ersichtlich).
+            bool betaction = true;                                                          // Daher keine Option für Angaben die keine Zahlen sind.
+
+            while (betaction == true) {
+                if (wager < 0) {
+                    do {
+                        Console.WriteLine("\nZu kleiner Wert.\n");
+                        Console.WriteLine("Bitte geben Sie einen Wert zwischen 0 und 10 ein:");
+                        wager = Convert.ToInt32(Console.ReadLine());
+                    } while (wager < 0);
+                } 
+                else if (wager > 10)
+                {
+                  do {
+                        Console.WriteLine("\nUngültiger Wert.\n");
+                        Console.WriteLine("Bitte geben Sie einen Wert zwischen 0 und 10 ein:");
+                        wager = Convert.ToInt32(Console.ReadLine());
+                    } while (wager > 10);
+                }
+                else if (wager > 0 && wager <= 10)
+                {
+                    betaction = false;
+                    Console.WriteLine("\nWetteinsatz angenomen: (" + wager + ") Jeton/s.\n");
+                }
+                else if (wager == 0)
+                {
+                    Console.WriteLine("\nSie haben ausgesetzt, Spieler " + whichplayer + ".\n");
+                    betaction = false;
+                }
+            }
+            return wager;
+        }
+        public static void Drawcards(ref int credit1, ref int valuecard, ref bool whichplayer, int playernumber, ref int aces)
+        {
+            Random card = new Random();
+            int onecard;
+            string specialcard = " ";                   // Specialcard ist wichtig falls es sich um A,B,D o. K handelt.
+            Console.WriteLine("~~~~~ Spieler" + playernumber);
+
+            for (int sumcard = 0; sumcard < 2; sumcard++)
+            {
+                onecard = card.Next(1, 13);
+                Switchcase(ref onecard, ref specialcard, ref aces);
+                valuecard += onecard;
+                if (specialcard == "A" || specialcard == "B" || specialcard == "D" || specialcard == "K")
+                {                                       // Falls es eine Specialcard ist, wird sie hier angezeigt; Summe ganz normal berechnet.
+                    Console.WriteLine("Karte: " + specialcard + ", Gesamt: " + valuecard);
+                } else {
+                    Console.WriteLine("Karte: " + onecard + ", Gesamt: " + valuecard);
+                }
+            }
+            while (whichplayer == true && valuecard < 21)
+            {
+                Console.WriteLine("Möchten Sie noch eine Karte ziehen (j|n)?");
+                string onemore = Convert.ToString(Console.ReadLine());
+                if (onemore == "j" || onemore == "J") {
+                    onecard = card.Next(1, 13);
+                    Switchcase(ref onecard, ref specialcard, ref aces);
+                    valuecard += onecard;
+                    if (specialcard == "A" || specialcard == "B" || specialcard == "D" || specialcard == "K") {
+                        Console.WriteLine("Karte: " + specialcard + ", Gesamt: " + valuecard);
+                    } else {
+                        Console.WriteLine("Karte: " + onecard + ", Gesamt: " + valuecard);
+                    }
+                    if (valuecard > 21) {
+                        valuecard += aces - aces * 11;   // Wenn der Kartenwert > 21 u. min. 1 Ass auf der Hand ist, werden diese als 1 gezählt.
+                        if (valuecard > 21 && aces == 0) // Anmerkung: Es ist unrealistisch, dass man (zumindest mit einem []) bei 256 Karten mehrere Asse zieht. 
+                        {                                // In dieser Aufgabenkonstellation kommen Asse deutlich öfter vor, weshalb man z.B. mit einem Kartenwert > 21 mehrere Asse auf der Hand haben kann.
+                            Console.WriteLine("Sie haben überzogen.");
+                        } else {
+                            Console.WriteLine("Asse zählen 1, Gesamt: " + valuecard);
+                            aces = 0;                    // Hier wird die neue Punktzahl ausgegeben.
+                        }
+                    }
+                } else {
+                    Console.WriteLine("Sie haben " + valuecard + " Punkte.");   // Nochmals eine Bestätigung der Punktzahl zwecks Übersichtlichkeit. 
+                    whichplayer = false;
+                }
+            }
+        }
+        public static int DrawcardsPc(ref bool whichplayer, ref int valuecardspc)          
+        {
+            Random card = new Random();
+            int onecard;
+            string specialcard = " ";
+            int aces = 0;           // Wird hier für die Switchcase Funktion benötigt, aber nicht verwendet.
+            Console.WriteLine("\nIch bin am Zug.");
+
+            while (valuecardspc < 16)
+            {
+                onecard = card.Next(1, 13);
+                Switchcase(ref onecard, ref specialcard, ref aces);
+                if (onecard == 1) {
+                    onecard = 11;
+                } else {
+                    valuecardspc += onecard;
+                    if (specialcard == "A" || specialcard == "B" || specialcard == "D" || specialcard == "K") {
+                        Console.WriteLine("Karte: " + specialcard + ", Gesamt: " + valuecardspc);
+                        whichplayer = false; // Gleiche Funktion mit Ausnahme der Asswertigkeit: Asse zählen immer 11.
+                    } else {
+                        Console.WriteLine("Karte: " + onecard + ", Gesamt: " + valuecardspc);
+                        whichplayer = false;  
+                    }
+                    if (valuecardspc > 21) {
+                        whichplayer = false;
+                    }
+                }
+            }
+            return valuecardspc;             // Der Kartenwert des PCs wird zurückgegeben für die Berechnung.
+        } 
+        public static string Switchcase(ref int card, ref string facecard, ref int ace)
+        {
+            switch (card) {
+                case 12:
+                    card = 10;
+                    facecard = "D";
+                    break;
+                case 13:
+                    card = 10;
+                    facecard = "K";
+                    break;
+                case 11:
+                    card = 10;
+                    facecard = "B";
+                    break;
+                case 1:
+                    card = 11;
+                    facecard = "A";           
+                    ace++;                   // Für jeden Ass wird der Menge +1 hinzugefügt. 
+                    break;
+                default:
+                    facecard = "";
+                    break;
+            }
+            return facecard;
+        }
+        public static int Results(int wager, ref int credit, int valuecards, int valuecardspc, int playernumber)
+        {
+            Console.WriteLine("\nSpielauswertung Spieler " + playernumber + ":");
+
+            if (valuecards < 22 && valuecardspc < 22 && valuecards < valuecardspc || valuecards == valuecardspc || valuecards > 21 && valuecardspc < 22) {
+                Console.WriteLine("\nSie haben verloren.");
+                credit -= wager;                            // Hier werden die Jetons wieder angepasst. 
+                Console.WriteLine("Übrige Jeton/s: " + credit);
+            }
+            else if (valuecards < 22 && valuecardspc < 22 && valuecards > valuecardspc || valuecards < 22 && valuecardspc > 21)
+            {
+                Console.WriteLine("\nSie haben gewonnen.");
+                credit += wager*2;
+                Console.WriteLine("Übrige Jeton/s: " + credit);
+            }
+            return credit;
+        }
+    }
+}
