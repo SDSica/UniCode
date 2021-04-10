@@ -1,0 +1,147 @@
+using System;
+
+namespace Praktikumsaufgabe_1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            CMySentence sentence = new CMySentence("Dies ist ein Test!");
+            CMyWord s = new CMyWord(sentence);
+            CMyWord t = new CMyWord(sentence[2] + " ");
+            Console.WriteLine(s);
+            Console.WriteLine(s + t);
+            Console.WriteLine(s - t);
+            Console.WriteLine(s[" :eraepsekahS"] + "S" + t | !("s" + t + "?"));
+            if (s) Console.WriteLine("s ist länger als 20 Zeichen.");
+            else Console.WriteLine("s ist höchstens 20 Zeichen lang.");
+            s *= 3;
+            Console.WriteLine(s);
+            if (s) Console.Write("s ist länger als 20 Zeichen ");
+            else Console.Write("s ist höchstens 20 Zeichen lang ");
+            Console.WriteLine("und enthält " + (int)sentence + " Wörter.");
+            if (new CMyWord("ein ") == t) Console.WriteLine("So soll es s" + t);
+
+        }
+    }
+    class CMyWord
+    {
+        String zeichenkette;
+        public String Zeichenkette
+        {
+            get { return zeichenkette; }
+            set { zeichenkette = value; }
+        }
+        public CMyWord()
+        {
+            zeichenkette = "";
+        }
+        public CMyWord(String s)
+        {
+            zeichenkette = s;
+        }
+
+        public static CMyWord operator +(String eins, CMyWord zwei) => new CMyWord(eins + zwei.Zeichenkette);
+        public static CMyWord operator +(CMyWord eins, CMyWord zwei) => new CMyWord(eins.Zeichenkette + zwei.Zeichenkette);
+        public static CMyWord operator +(CMyWord eins, String zwei) => new CMyWord(eins.Zeichenkette + zwei);
+        
+      
+
+        // hier erweitern
+        public static implicit operator string(CMyWord input) => input.Zeichenkette;
+        
+        //eins = s; zwei = t
+        public static string operator -(CMyWord eins, CMyWord zwei) => eins.Zeichenkette.Replace(zwei.Zeichenkette, "");
+
+        public string this[string input]
+        {
+            get
+            {
+                string tmp = "";
+                for (int i = input.Length-1; i > 0; i--)
+                {
+                    tmp += input[i];
+                }
+                return tmp;
+            }
+        }
+
+        public static string operator |(CMyWord eins, CMyWord zwei) => eins.Zeichenkette + "oder " + zwei.Zeichenkette;
+        public static CMyWord operator !(CMyWord input) =>  new CMyWord("nicht " + input.Zeichenkette);
+
+        public static bool operator false(CMyWord input)
+        {
+            return input.Zeichenkette.Length <= 20;
+        }
+
+        public static bool operator true(CMyWord input)
+        {
+            return input.Zeichenkette.Length > 20;
+        }
+
+        public static CMyWord operator *(CMyWord input, int z)
+        {
+            string tmp = "";
+            for  (int i = 0; i < z; i++)
+            {
+                tmp = string.Concat(input.Zeichenkette,tmp); //!!! 
+            }
+            return new CMyWord(tmp);
+        }
+
+        public static bool operator ==(CMyWord eins, CMyWord zwei)
+        {
+            if (eins.Zeichenkette == zwei.Zeichenkette)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool operator !=(CMyWord eins, CMyWord zwei)
+        {
+            if (eins.Zeichenkette == zwei.Zeichenkette)
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+    class CMySentence
+    {
+        CMyWord[] myWords;
+        public CMySentence(string sentence)
+        {
+            string[] words = sentence.Split();
+            myWords = new CMyWord[words.Length];
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                this.myWords[i] = new CMyWord(words[i]);
+
+
+            }
+        }
+        public static implicit operator string(CMySentence a)
+        {
+            string tmp = "";
+            for (int i = 0; i < a.myWords.Length; i++)
+            {
+                tmp += a.myWords[i].Zeichenkette + " ";
+            }
+            return tmp;
+        }
+
+        public string this[int i] => myWords[i];
+
+        public static explicit operator int(CMySentence a) => a.myWords.Length;
+
+
+
+
+    }
+
+
+
+}
+
