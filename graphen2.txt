@@ -1,0 +1,63 @@
+Teil 2 Aufgabe 1: Grundlegende Ein- und Ausgabefunktionalität
+Wir wollen nun einen TwoDimGraph laden und speichern können. Stellen Sie hierfür folgende Methoden in der Klasse de.jpp.factory.IOFactory zur Verfügung:
+
+GraphReader<XYNode, Double, TwoDimGraph, String> getTwoDimGxlReader():
+Erstellt einen GraphReader, der einen TwoDimGraph aus einem String im gxl-Format rekonstruiert.
+GraphReader<XYNode, Double, TwoDimGraph, String> getTwoDimDotReader():
+Erstellt einen GraphReader, der einen TwoDimGraph aus einem String im dot-Format rekonstruiert.
+GraphWriter<XYNode, Double, TwoDimGraph, String> getTwoDimGxlWriter():
+Erstellt einen GraphWriter, der einen TwoDimGraph in einen String im gxl-Format umwandelt.
+GraphWriter<XYNode, Double, TwoDimGraph, String> getTwoDimDotWriter():
+Erstellt einen GraphWriter, der einen TwoDimGraph in einen String im dot-Format umwandelt.
+Ihre Parser sollten die Beispieldateien erfolgreich verarbeiten können. Testen Sie dies ausführlich, bevor sie auf PABS committen! Auch die Tests arbeiten im wesentlichen mit diesen Dateien. Für das Einlesen der Dateien sind folgende Hinweise zu beachten:
+
+Implementieren Sie die Klasse ParseException, so dass diese die entsprechenden Exceptions mit den übergebenen Parametern erzeugt. Verwenden Sie den super(...)-Konstruktor und schauen Sie sich an, wie Exceptions in Java typischerweise implementiert werden.
+Enthält ein Knoten keine x-Koordinate, so soll eine ParseException geworfen werden.
+Enthält ein Knoten keine y-Koordinate, so soll eine ParseException geworfen werden.
+Enthält ein Knoten kein Label, so soll KEINE ParseException geworfen werden.
+Enthält eine Kante kein Gewicht, so soll eine ParseException geworfen werden.
+Ist Start- oder Endknoten einer Kante nicht spezifiziert oder vorhanden, so soll eine ParseException geworfen werden.
+Erfüllt das Dokument nicht die vorgegebene Formatspezifikation(gxl oder dot), so soll eine ParseException geworfen werden. Hinweis: Ein <attr>-Tag, der keine Kinder hat verletzt auch die gxl-Spezifizierung.
+Hinweise für das dot-Format
+Empfehlungen für hilfreiche Methoden:
+
+parseLine:
+Fügt das Element der Zeile zum Graphen hinzu
+parseNode:
+Fügt das Element der Zeile zum Graphen hinzu, falls es sich um eine Zeile handelt, die einen Knoten definiert
+parseEdge:
+Fügt das Element der Zeile zum Graphen hinzu, falls es sich um eine Zeile handelt, die eine Kante definiert
+parseAttributes:
+Liest alle key=value-Werte die in [ ] der übergebenen Zeile ein und gibt sie als Map zurück. Schauen Sie sich die Beispiele sehr gut an. Es können an vielen Stellen Leerzeichen auftauchen, die ihr Parser ignorieren muss. Weiterhin sollten Sie unbedingt darauf achten, was in Anführungszeichen steht und was nicht, um Attribute korrekt zu parsen.
+Benutzen Sie daher am Besten geeignete Reguläre Ausdrücke um die Zeilen zu parsen. Nur mit String.split werden Sie nicht sehr weit kommen! Sie müssen nicht testen, ob ein Literal escaped (\) wurde. Betrachten Sie in solchen Fällen den Backslash einfach als valides Zeichen ohne weitere Bedeutung.
+Hinweise für das gxl-Format
+gxl ist eine Untersprache von XML, daher können Sie sich auf der Suche nach Tutorials auch darauf fokussieren und müssen nicht speziell nach gxl suchen. Die Methoden benutzten dabei die org.jdom2-API, die sie ebenfalls verwenden dürfen. PABS ist entsprechend eingerichtet, sodass diese Bibliothek zur Verfügung steht. Die API ist sehr umfangreich, lesen Sie sich daher bevor sie mit der Implementierung beginnen in die entsprechenden Abschnitte ein, die sie benötigen, um zu vermeiden, dass sie später alles wieder ändern müssen. Beachten Sie bei diesem Format, dass die Zuordnung der Kanten zu Knoten über die IDs funktioniert. Diese finden Sie im id-Attribut und können Sie von dort aus auslesen. Bedenken Sie auch, dass sie beim Schreiben auch wieder IDs brauchen. Das müssen nicht die gleichen sein wie bei einem eventuell vorhergegangenen Einlesen. Speichern Sie daher die IDs nicht dauerhaft irgendwo, das führt zu Problemen. Generieren Sie die IDs beim Schreiben stattdessen neu.
+
+Gestalten Sie die Methoden hier möglichst modular, da sie sie in der nächsten Teilaufgabe noch um weitere Funktionalität erweitern werden.
+
+Empfehlungen für hilfreiche Methoden:
+
+readNodeId:
+Liest die ID des Knoten aus der GXL-Darstellung des Knoten (übergeben als org.jdom2.Element) aus. In den Beispielen des TwoDimGraph ist die ID im GXL-Element als Attribut "id" gespeichert und kann von dort ausgelesen werden.
+readNode(Element):
+Erzeugt das entsprechende Knotenobjekt aus dem org.jdom2.Element Objekt. Im Falle des TwoDimGraph werden hier x- und y-Koordinate des Knoten ausgelesen und das entsprechende Objekt damit erstellt. Sollte es ein Label geben, so befindet sich dieses im description-Attribut.
+readAnnotation(Element):
+Erzeugt die entsprechende Annotationa us dem org.jdom2.Element Objekt. Im Falle des TwoDimGraph werden hier die Kosten der Kante ausgelesen und zurückgegeben.
+getAttrValue:
+Liest ein bestimmtes Attribut aus einer Liste an Attributelementen aus.
+Beispiel: getAttrValue("<edge from="id2" id="id19" to="id1">", "from") => id2
+
+writeNode:
+Erstellt aus dem übergebenen Knoten ein org.jdom2.Element-Objekt.
+
+writeEdge:
+Erstellt aus der übergebenen Kante ein org.jdom2.Element-Objekt.
+calculateId:
+Weist dem übergebenen Knoten / der übergebenen Kante eine einzigartige ID zu. Im einfachsten Fall fangen sie mit der ID 1 an und weisen den Objekten nacheinander höhere Zahlen als IDs zu.
+createAttribute: Erstellt ein org.jdom2.Element-Objekt, das ein Attribut speichert.
+Beispiel: createAttribute("x", "float", "1.0") => "<attr name = "x"> <float> 1.0 </float> </attr>"
+Beachten Sie beim Schreiben folgende Datentypen für die Ausgabe des TwoDimGraph:
+
+description → string
+x, y → int
+cost → float

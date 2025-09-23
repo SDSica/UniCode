@@ -1,0 +1,119 @@
+Implementieren Sie während des Programmierpraktikum niemals ohne explizite Aufforderung einen Sortieralgorithmus. Es wird weder in der Aufgabe, noch in der Klausur verlangt werden, eine Sortierung selbst zu implementieren! Nutzen Sie stattdessen Collections.sort.
+Wenden Sie stets das Geheimnisprinzip an und machen Instanzvariablen private und lassen Sie sich geeignete Getter- und Setter von IntelliJ generieren.
+Implementieren Sie sich für jede Klasse eine geeignete toString()-Implementierung. Dies kann hilfreich sein, die PABS-Ausgaben zu verstehen.
+Testen Sie ihren eigenen Code regelmäßig mithilfe von main-Funktionen oder selbstgeschriebenen Tests! Die PABS-Tests sollen Ihnen nur Rückmeldung geben, ob Ihr Programm korrekt ist. Sie sind nicht zur Fehlersuche geeignet!
+Teil 1: Model
+Ein Graph besteht aus Knoten und Kanten, die diese verbinden. Knoten können dabei beliebige Objekte sein (z.B. Personen, Städte, Straßenkreuzungen, ...), Kanten können zusätzliche Informationen (z.B. Distanzen, Gewichte, ...) enthalten. Da wir analog zu der Collections-API nicht vorgeben wollen, welche Art von Daten im Graph gespeichert sind, werden wir Generics benutzen, mit denen der Nutzer diese Entscheidung selbst treffen kann.
+
+Wir verwenden dabei folgende Konventionen und Abkürzungen zur Benennung von Generics:
+
+Generischer Bezeichner	Zweck
+N(ode)	Datentyp der Knoten
+A(nnotation)	Datentyp der Zusatzinformation, die in der Kante gespeichert ist
+E(dge)	Datentyp der Kanten, ausgeschrieben Edge<N, A>
+G(raph)	Datentyp des Graphen. Unterklasse von Graph<N, A>
+F(ormat)	Datentyp eines Formats, bspw. zu I/O-Zwecken
+Technisch können Graphen auf verschiedene Art und Weisen implementiert werden. Beispiele hierfür wären eine Adjazenzmatrix oder eine Map, die zu jedem Knoten dessen Kanten enthält. Beide Implementierungen haben Vor- und Nachteile. So unterstützt eine Adjazenzmatrix keine mehrfachen Kanten und benötigt viel Speicher - kann aber auch die Distanz zwischen zwei Knoten schneller zurückgeben. Es kann daher sinnvoll sein, verschiedene Implementierungen eines Graphen zu haben und je nach Anwendungsfall die beste Option auszuwählen. Aus diesem Grund benutzen wir Interfaces, die mehrere Implementierungen des gleichen Datentyps ermöglichen.
+
+Um die Funktionalitäten eines Graphen und etwaige Use-Cases auf verschiedene Klassen zu verteilen, stehen drei verschiedene Interfaces zur Verfügung:
+
+Graph<N, A>:
+Basisimplementierung eines Graphen
+ObservableGraph<N, A>:
+Basisimplementierung, die zusätzlich Listener informiert, wenn sich etwas am Model geändert oder eine Anfrage an den Graphen stattgefunden hat.
+WeightedGraph<N, A>:
+Basisimplementierung, bei der zu jeder Kante mindestens das Gewicht gespeichert werden muss.
+Diese Klassen werden nun im Folgenden implementiert. Beachten Sie dabei folgende Hinweise:
+
+Schleifen (Kanten mit identischem Start- und Zielknoten) müssen nicht unterstützt werden.
+Mehrfachkanten (mehrere Kanten zwischen den selben Knoten) müssen möglich sein.
+Nutzen Sie das Konzept der Vererbung so oft wie möglich. Andernfalls wird der Code sehr unübersichtlich, schlecht wartbar und es besteht die Gefahr, große Teile neu schreiben zu müssen. Setzen Sie Strg+C oder Rechtsklick->Kopieren ein, so ist dies mit hoher Wahrscheinlichkeit ein umständlicher Weg, die Aufgabe zu lösen. Fragen Sie im Zweifel im Tutorium oder im Forum.
+Teil 1 Aufgabe 1: Das Modell
+Die Klasse Edge
+Implementieren Sie mindestens die folgenden Methoden:
+
+Edge(N start, N dest, Optional<A> annotation):
+Erzeugt eine neue Kante mit den gegebenen Parametern. Sollte einer davon null sein, so werfen sie eine NullPointerException mit aussagekräftigem Inhalt
+Die verbleibenden Methoden im Template sind Getter. Geben Sie also die entsprechenden Werte zurück.
+Das Interface Graph<N,A>
+Stellen Sie sicher, dass Ihre Implementierung mindestens die folgenden Methoden auf geeignete Art und Weise implementiert. *Hinweis: Es ist nicht gestattet, dem Interface weitere Methoden hinzuzufügen. Andernfalls kompiliert Ihr Code nicht mehr auf PABS.
+
+boolean addNode(N node):
+Nach Aufruf dieser Methode ist der übergebene Knoten Teil des Graphen. Geben Sie true zurück, falls er vorher noch nicht enthalten war, in allen anderen Fällen geben Sie false zurück.
+boolean addNodes(Collection<? extends N> nodes) und boolean addNodes(N... nodes):
+Nach Aufruf dieser Methode sind alle übergebenen Knoten Teil des Graphen. Geben Sie true zurück, falls mindestens einer das vorher nicht war, in allen anderen Fällen geben Sie false zurück.
+Collection<N> getNodes():
+Gibt alle im Moment im Graph befindlichen Knoten zurück. Die zurückgegebene Collection darf nicht modifizierbar sein.
+Edge<N, A> addEdge(N start, N destination, Optional<A> annotation):
+Nach Aufruf dieser Methode enthält der Graph eine Kante von start zu destination mit der Annotation annotation. Wenn die Knoten noch nicht Teil des Graphen sind, werden sie hinzugefügt. Geben Sie die Instanz der neuen Kante zurück.
+default Edge<N, A> addEdge(N start, N destination):
+Gleiche Funktionsweise wie die vorherige Methode. Hier ist lediglich die Annotation nicht vorhanden, also leer. Beachten Sie den Unterschied zwischen leer und null!!
+boolean removeEdge(Edge<N, A> edge):
+Nach dem Aufruf dieser Methode ist die übergebene Kante nicht mehr Teil des Graphen. Geben Sie true zurück, falls sie das vorher war, in allen anderen Fällen geben Sie false zurück.
+Collection<Edge<N, A>> getNeighbours(N node):
+Geben Sie alle Kanten zurück, die zu Knoten führen, die mit dem übergebenen Knoten benachbart sind. Zwei Knoten gelten als benachbart, wenn eine Kante sie verbindet. Die zurückgegebene Collection darf nicht modifizierbar sein.
+Collection<Edge<N, A>> getReachableFrom(N node):
+Geben Sie alle Kanten zurück, die zu dem übergebenen Knoten führen. Das heißt, sie starten an einem Knoten und enden an dem übergebenen. Die zurückgegebene Collection darf nicht modifizierbar sein.
+Collection<Edge<N, A>> getEdges():
+Geben Sie alle Kanten zurück, die im Graphen im Moment enthalten sind. Die zurückgegebene Collection darf nicht modifizierbar sein.
+boolean removeNode(N node):
+Nach Aufruf dieser Methode ist der übergebene Knoten nicht länger Teil des Graphen. Geben Sie true zurück, falls er das vorher war. In allen anderen Fällen geben Sie false zurück. Bedenken Sie, dass ein entfernter Knoten auch Auswirkungen auf die Kanten hat. Die folgende Invariante ist für alle Graphen stets zu erfüllen: Alle Knoten, die Teil einer Kante sind, müssen auch im Graphen enthalten sein.
+boolean removeNodes(Collection<? extends N> nodes) und boolean removeNodes(N... nodes):
+Nach Aufruf dieser Methode sind alle übergebenen Knoten nicht länger Teil des Graphen. Geben Sie true zurück, falls mindestens einer das vorher war. In allen anderen Fällen geben Sie false zurück. Bedenken Sie auch wieder die Auswirkungen auf die Kanten.
+void clear():
+Nach Aufruf dieser Methode enthält der Graph keine Kanten und Knoten mehr.
+Das Interface ObservableGraph<N,A>
+Dieses Interface erweitert das Basisinterface und fügt ihm die Funktionalität hinzu, Listener hinzuzufügen und zu entfernen. Diese Listener werden an den passenden Stellen über Änderungen im Graphen benachrichtigt. Ein Listener ist in unserem Fall ein Consumer<T> wobei T durch den jeweiligen Typ zu ersetzen ist. Muss der Listener über ein Ereignis in Kenntnis gesetzt werden, so wird dem Consumer das entsprechende Objekt mit der Änderung zur Konsumierung übergeben. Bedenken Sie dabei, dass für sie als Entwickler nicht relevant ist, was genau der Consumer bzw. der Listener tut. Betrachten Sie diesen also als BlackBox. Sie registrieren ihn und informieren ihn über die Änderungen und damit ist Ihre Aufgabe erledigt. Insgesamt gibt es die folgenden Listener:
+
+Node Add → Wird informiert, wenn ein Knoten hinzugefügt wird.
+Node Remove → Wird informiert, wenn ein Knoten entfernt wird.
+Edge Add → Wird informiert, wenn eine Kante hinzugefügt wird.
+Edge Remove → Wird informiert, wenn eine Kante entfernt wird.
+Neighbours Listed → Wird informiert, wenn alle Nachbarn eines Knoten aufgelistet werden bzw. nach ihnen gefragt wird.
+Reachable Listed → Wird informiert, wenn gefragt wird, über welche Kanten ein Knoten erreichbar ist.
+Nodes Listed → Wird informiert, wenn alle Knoten eines Graphen aufgelistet werden bzw. nach ihnen gefragt wird.
+Edges Listed → Wird informiert, wenn alle Kanten eines Graphen aufgelistet werden bzw. nach ihnen gefragt wird.
+Implementieren Sie die im Template vorgegebenen add und remove Methoden für die einzelnen Listener. Die erstere registriert dabei den Listener, die zweite entfernt ihn wieder. Suchen Sie also nach einer geeigneten Datenstruktur, sich die Listener zu merken. Achten Sie darauf, sie nicht zu vermischen.
+
+Implementieren Sie nun die verbleibenden Methoden des Graph-Interfaces und informieren Sie an den geeigneten Stellen die passenden Listener. Achten Sie dabei darauf, dass manche Listener von mehreren Methoden informiert werden können. Hinweis: Kopieren Sie hier keinen Code aus anderen Klassen. Es lässt sich alles mit Vererbung lösen!
+
+Das Interface WeightedGraph<N,A>
+Dieses Interface können Sie im Moment noch nicht implementieren, da es variabel ist. Implementieren Sie die Methode stattdessen in den Klassen, die dieses Interface implementieren. Die einzige Methode des Interface ist die Folgende:
+
+double getDistance(Edge<N, A> edge):
+Gibt das Gewicht der übergebenen Kante zurück. Wie sich das Gewicht berechnet, hängt von der jeweiligen Implementierung ab.
+Fügen sie anschließend folgende Funktionen zur Klasse de.jpp.factory.GraphFactory hinzu:
+
+static <N, A> Graph<N, A> createNewGraph():
+Erstellt einen neuen Graph. Dieser soll explizit nicht eine Instanz der Klasse ObservableGraph sein.
+static <N, A> ObservableGraph<N, A> createNewObservableGraph():
+Erstellt einen neuen ObservableGraph.
+Hinweise :
+
+Die <N, A> aus der Funktionsdeklaration erlauben es Ihnen, eine Typdeklaration an den Konstruktor zu übergeben. Machen sie das nicht, zeigt IntelliJ eine Warning UncheckedAssignment an. Beim Aufruf der Funktion ist nichts weiter zu beachten, Sie können etwa folgendermaßen einen Graph erstellen, dessen Knoten Texte sind und deren Kante ein Gewicht (als Kommazahl) enthalten: Graph<String, Double> graph = createNewGraph(); .
+Die Tests können erst ein sinnvolles Ergebnis anzeigen, nachdem die Factory-Methoden korrekt implementiert worden sind. Testen Sie ihren Code selbstständig!
+Vergessen Sie nicht, die equals() und hashCode()-Methoden für Ihre Graph-Implementierung (z.B. GraphImpl) zu überschreiben. Ansonsten können ihre Graphen nicht korrekt verglichen werden und die Testausgaben können abstrakt wirken. Achten Sie dabei besonders darauf, dass sie Vergleiche auf Collections passend implementieren. Je nach verwendeter Klasse kann es nicht ausreichen, lediglich equals() auf diesen aufzurufen. Achten Sie dabei insbesondere auf den API-Vertrag)!
+Für die Klassen, die von Ihrer Graph-Implementierung erben, reicht die nun geschriebene equals()-Methode bereits aus. Sie muss - sofern nicht anders angegeben - nicht mehr überschrieben werden. Das gilt insbesondere auch für ObservableGraphImpl.
+Teil 1 Aufgabe 2: Die 2D-Ausprägung
+Unser bisheriges Framework ist ziemlich allgemein gehalten. Es enthält keine Informationen zu Knoten oder Kanten. Wir wollen dies im Folgenden ändern und eine konkrete Ausprägung implementieren, die später graphisch angezeigt wird. Zu Programmieren ist ein zweidimensionaler Graph TwoDimGraph, der vom Typ Graph<XYNode, Double> ist und zusätzlich die Interfaces WeightedGraph und ObservableGraph implementiert. XYNode ist dabei ein Knoten mit x- und y-Koordinate. Jede Kante enthält nur ein Gewicht (gespeichert als Double als Annotation in den Kanten) und keine weiteren Informationen.
+
+Die Klasse XYNode
+Diese Klasse repräsentiert einen Knoten, der auch über eine x- und y-Koordinate in einem kartesischen Koordinatensystem repräsentiert werden kann. Weiterhin wird ein String als Label zu visuellen Zwecken gespeichert. Implementieren Sie mindestens die folgenden Methoden:
+
+XYNode(String label, double x, double y):
+Erzeugt ein XYNode-Objekt. Ist label null, so werfen Sie eine NullPointerException mit aussagekräftigem Inhalt.
+Implementieren Sie Getter für alle Attribute wie gewohnt
+double euclidianDistTo(XYNode other):
+Berechnen Sie die euklidische Distanz von diesem Knoten zu other.
+Zwei XYNodes sind gleich, wenn ihre Koordinaten und ihr Label gleich sind.
+Die Klasse TwoDimGraph
+Diese Klasse repräsentiert einen zweidimensionalen Graphen. Implementieren Sie mindestens die folgenden Methoden:
+
+Edge<XYNode, Double> addEuclidianEdge(XYNode start, XYNode dest):
+Fügt eine Kante zwischen start und dest hinzu, die die euklidische Distanz der beiden Knoten als Gewicht hat.
+double getDistance(Edge<XYNode, Double> edge):
+Gibt die in der Kante gespeicherte Distanz zurück. Ist dort keine gespeichert, so geben Sie bitte 0 zurück.
+Wichtig: Damit das Template von Anfang an kompiliert ist TwoDimGraph als abstrakt gekennzeichnet. Entfernen Sie diesen Tag und implementieren Sie es als normale Klasse. Fügen Sie anschließend folgende Methode zur Klasse de.jpp.factory.GraphFactory hinzu:
+
+static TwoDimGraph createNewToDimGraph():
+Erstellt einen neuen und leeren TwoDimGraph.

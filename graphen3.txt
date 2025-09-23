@@ -1,0 +1,13 @@
+Teil 2 Aufgabe 2: Erweiterte Ein- und Ausgabefunktionalität
+Nun erweitern Sie ihre Methoden vorher um einen anderen Typen von Graph, den LabelMapGraph. Dieser hat kein einzelnes Label für seine Kanten, sondern eine Map aus Strings. Jede Kante kann beliebig viele davon haben.
+
+Im Paket de.jpp.model finden Sie bereits die Klasse LabelMapGraph, diese können Sie verwenden. Entfernen Sie dazu den abstract-Tag und erweiteren Sie GraphImpl<String, Map<String, String>>. Das kann im folgendem viel Schreibarbeit bei den Typen sparen. Konsultieren Sie zur Implementierung auch wieder die Beispiele. Diese sehen teilweise sehr ähnlich zu den "normalen" gxl-Dateien aus, achten Sie also darauf, dass Sie nur die relevanten Dinge parsen. Parsen sie Attribute auch wenn sie nicht vom Typ String sind und fügen Sie sie als String ein. Beim Schreiben müssen Sie ebenfalls nicht auf die Typen achten und können alles als String in die Struktur einbringen.
+Stellen Sie insgesamt anschließend mindestens die folgende Methoden in der Klasse de.jpp.factory.IOFactory zusätzlich zur Verfügung:
+
+GraphReader<String, Map<String, String>, LabelMapGraph> getLabelMapGraphGxlReader():
+Erstellt einen GraphReader, der einen LabelMapGraph aus einem String im gxl-Format rekonstruiert.
+GraphWriter<String, Map<String, String>, LabelMapGraph> getLabelMapGraphGxlWriter():
+Erstellt einen GraphWriter, der einen LabelMapGraph in einen String im gxl-Format umwandelt.
+Stellen Sie außerdem die folgende Methode in der Klasse de.jpp.factory.GraphFactory zur Verfügung:
+LabelMapGraph createNewLabelMapGraph():
+Erstellt einen neuen und leeren LabelMapGraph.
