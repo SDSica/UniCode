@@ -1,0 +1,93 @@
+Teil 3: Graphensuche
+In diesem Abschnitt sollen vier Suchalgorithmen (Tiefensuche, Breitensuche, Dijkstra und A*-Suche) auf dem eben geschriebenen Graphen umgesetzt werden. Zur genaueren Erklärung der Algorithmen können sie sich auch an der Vorlesung (Grundlagen der) Algorithmen und Datenstrukturen orientieren, falls Sie diese besucht haben. Da alle Algorithmen das gleiche Problem lösen (eine Wegsuche, ausgehend von einem Startknoten) kann das Strategy-Pattern verwendet werden. Die Schnittstelle zur konkreten Strategie wird im Interface SearchAlgorithm definiert.
+Ab hier kann auch die GUI sinnvoll eingesetzt werden, um die eigene Implementierung der Suchen zu testen. Überlegen Sie sich zum Testen am Besten einen mittelgroßen (7-10 Knoten, 15-20 Kanten) Graphen, mit dem Sie alle Algorithmen testen können.
+
+Mithilfe der SearchStopStrategy ist es möglich, den Abbruch der Suche zu steuern. Ausprägungen dieses Interfaces werden informiert, sobald der Weg zu einem Knoten abschließend gefunden wurde (= dieser geschlossen wurde). Gibt die Funktion boolean stopSearch(Node) true zurück, soll der Algorithmus die Suche beenden. Das soll vermeiden, dass Rechenzeit für unnötige Informationen aufgewendet wird. SearchStopStrategy ist dabei ein funktionales Interface, dessen Ausprägungen auf drei unterschiedliche Art und Weisen (Lambda, Anonyme Klasse, normale Klasse) implementiert werden können. Die folgenden Funktionen der Klasse de.jpp.factory.SearchStopFactory sollen folgende Ausprägungen erstellen:
+
+<N> SearchStopStrategy<N> maxNodeCount(int maxCount):
+Diese Ausprägung soll den Algorithmus solange ausführen, bis die übergebene Anzahl an Knoten geschlossen wurde.
+<N> SearchStopStrategy<N> expandAllNodes():
+Diese Ausprägung soll den Algorithmus nie stoppen.
+<N> StartToDestStrategy<N> startToDest(N dest):
+Diese Ausprägung stoppt den Algorithmus, sobald der Weg zum Knoten dest gefunden wurde.
+Tipp: Implementieren Sie diese Ausprägung mithilfe einer Klasse de.jpp.algorithm.StartToDestStrategy.
+Nutzen Sie im Folgenden diese Strategien an geeigneten Stellen und implementieren Sie die von Ihnen bereitgestellten Funktionalitäten nicht erneut. Dies ist fehleranfällig.
+
+Bei Suchalgorithmen spielt es oft eine Rolle, wie oft man einen Knoten bereits "gesehen" bzw. "gefunden" hat. Davon hängt dann das weitere Vorgehen ab. Um Ihnen die Implementierung zu erleichtern, gibt es das nun folgende Enum.
+
+Das Enum NodeStatus
+Dieses Enum repräsentiert den aktuellen Status der Knoten im Graph. Es hat folgende drei Ausprägungen:
+
+UNKNOWN, CLOSED, OPEN
+Zu Beginn haben alle Knoten den Status UNKNOWN. Werden sie entdeckt, so erhalten sie den Status OPEN. Sind sie abgearbeitet - wann sie das sind, hängt vom konkreten Algorithmus ab - so erhalten die den Status CLOSED.
+
+Der Record NodeInformation
+Dieser Record ist eine reine Datenklasse, die zur leichteren Implementierung der später erklärten Suchalgorithmen dient. Die zwei Attribute, die gehalten werden, ist die aktuelle Kante zu einem Vorgänger-Knoten und die aktuell kürzeste Distanz zu diesem Knoten. Beide Informationen sollten verfügbar sein, auch nur dann ergibt die Erzeugung eines entsprechenden Objektes Sinn. Für diese Klasse gibt es keine Tests. Achten Sie also darauf, den Record nicht zu verändern.
+
+Das Interface SearchResult<N,A>
+Implementierungen dieses Interfaces beschreiben den Status bzw. die Ergebnisse einer Suche. Die definierten Methoden haben die folgende Bedeutung:
+
+NodeStatus getNodeStatus(N node):
+Gibt den aktuellen Status des Knoten node in der aktuellen Suche zurück.
+Optional<Edge<N, A>> getPredecessor(N node):
+Gibt den Vorgänger des Knotens node auf einem Pfad zurück. Existiert noch kein solcher Pfad, soll ein leeres Optional zurückgegeben werden.
+Optional<NodeInformation<N, A>> getInformation(N node):
+Gibt die aktuell bekannten Informationen des Knotens node zurück. Sollte dieser (noch) nicht bekannt sein, so soll ein leeres Optional zurückgegeben werden.
+Collection<N> getAllKnownNodes():
+Gibt eine Sammlung aller Knoten zurück, die im Moment bekannt sind. Ein Knoten gilt als bekannt, wenn er nicht mehr den Status UNKNOWN hat.
+Collection<N> getAllOpenNodes():
+Gibt eine Sammlung aller bereits geöffneten Knoten zurück.
+void setClosed(N node):
+Schließt den Knoten node.
+void setOpen(N node):
+Öffnet den Knoten node.
+void setUnknown(N node):
+Setzt den Knoten node auf UNKNOWN.
+void setPredecessor(N node, Edge<N,A> predecessor, double distance), void setPredecessor(N node, NodeInformation<N,A> information):
+Setzt den Vorgänger des Knoten node auf predecessor und speichert sich die Distanz zu dem Knoten. Diese kann die Distanz vom Startknoten oder vom Vorgängerknoten sein, das hängt dann später von der Suche ab. Ist der Knoten node noch nicht geöffnet oder existiert gar nicht erst im Graphen, so werfen Sie eine IllegalStateException mit aussagekräftigem Inhalt.
+Die Methode kann mit den einzelnen Werten oder mit der Datenklasse NodeInformation<N,A> verwendet werden. Implementieren Sie beide Methoden so, dass sie das selbe Verhalten zeigen. Auch hier ist Code kopieren nicht von Vorteil.
+void clear():
+Setzt die Suche zurück, das heißt, alle bisher bekannten Informationen werden wieder gelöscht und alles steht nach Aufruf dieser Methode auf Anfang.
+Optional<List<Edge<N, A>>> getPathTo(N dest):
+Gibt einen Pfad vom Ausgangspunkt der Suche zum Knoten dest zurück. Der Pfad wird über die Kanten, die betreten werden müssen, dargestellt. Existiert noch kein solcher Pfad, soll ein leeres Optional zurückgegeben werden.
+Das Interface ObservableSearchResult<N, A>
+Implementierungen dieses Interface erweitern das bereits bekannte Interface SearchResult<N,A> um Funktionen zur Beobachtung der durchgeführten Aktionen während einer Suche. Dazu wird ebenfalls das bereits bekannte Observable-Pattern genutzt.
+Die Listener bestehen dieses Mal aus BiConsumer<N, SearchResult<N,A>>-Objekten. Das bedeutet, dass die Listener bei einem Ereignis mit Informationen über den betroffenen Knoten und über den aktuellen Zustand der Suche versorgt werden. Es gibt zwei Arten von Listenern, die sie in einer entsprechenden Implementierung berücksichtigen müssen:
+
+NodeOpened → Wird informiert, wenn ein Knoten geöffnet wird.
+NodeClosed → Wird informiert, wenn ein Knoten geschlossen wird.
+Implementieren Sie die beiden vorherigen Interfaces geschickt! Tipp: Es ist nur eine Klasse vonnöten. Machen Sie sich weiterhin bereits im Vorfeld Gedanken über sinnvolle Datenstrukturen, damit sie die erhaltenen und benötigten Informationen nicht nur einfach speichern, sondern auch wieder einfach auf sie zugreifen können.
+
+Das Interface SearchAlgorithm<N, A, G extends Graph<N, A>>
+Implementierungen dieses Interface bieten die Grundlage für alle Suchalgorithmen, die nachfolgend noch implementiert werden müssen. Es stellt die Grundfunktionalitäten der Suche bereit. Die definierten Methoden haben folgende Bedeutung:
+
+SearchResult<N, A> findPaths(SearchStopStrategy<N> stopStrategy):
+Ein Aufruf dieser Methode startet die Suche. An welchem Knoten sie gestartet wird, wird hier nicht festgelegt. Dies muss in der Klasse, die das Interface implementiert dann festgelegt werden. Das Ende der Suche wird über stopStrategy bestimmt. Erinnern Sie sich, wann dieses Objekt befragt werden muss und stoppen Sie die Suche SOFORT, wenn das Ergebnis des Aufruf von stopSearch dies erfordert. Dies bedeutet, dass sich der Status der Knoten nicht mehr ändern darf. Dies umfasst nicht nur NodeStatus sondern auch jegliche weitere Informationen, wie Vorgänger, Pfade, ... Kurzum: Führen Sie keine weiteren Operationen mehr in einem solchen Fall aus.
+SearchResult<N, A> findAllPaths():
+Führen Sie eine Suche - wie in der vorherigen Methode - durch, die aber nicht stoppt bevor nicht alle Knoten entdeckt und vollständig erkundet wurden.
+ObservableSearchResult<N, A> getSearchResult():
+Gibt das Ergebnis der Suche zurück. Diese Methode muss auch schon ein Objekt liefern, wenn die Suche noch nicht durchgeführt wurde. Achten Sie darauf, dass sich Änderungen am zurückgegebenen Objekt auch auf ihre Suche auswirken sollen. Wird beispielsweise eine Listener hinzugefügt, muss dieser im Folgenden auch bei den entsprechenden Ereignissen benachrichtigt werden.
+N getStart():
+Gibt den Startknoten der Suche zurück.
+G getGraph:
+Gibt den Graphen, auf dem die Suche ausgeführt wird, zurück.
+void stop():
+Stoppt die Suche sofort. Dies bedeutet, dass keine weiteren Knoten mehr entdeckt und geöffnet werden. Setzen Sie (außer bei DFS) alle bereits geöffneten Knoten wieder auf UNKNOWN.
+Implementieren Sie nun die folgenden vier Suchalgorithmen. Konsultieren Sie die Unterlagen der (G)ADS oder KI-1 Vorlesungen oder führen Sie eine Internetrecherche durch, um die Details der Algorithmen herauszufinden, falls sie Ihnen nicht mehr geläufig sind.
+
+Tiefensuche (DFS)
+Breitensuche (BFS)
+Dijkstra
+Hinweis: Damit das Interface SearchStopStrategy sinnvoll genutzt werden und Suchen rechtzeitig abgebrochen werden können, müssen Sie Dijkstra iterativ implementieren.
+A*
+Im Unterschied zu den vorherigen Algorithmen genügt es für diesen, den kürzesten Weg zwischen Start- und Zielknoten zu finden. Dabei wird unter anderem eine Schätzfunktion verwendet. In der Literatur (oder auf Wikipedia wird diese auch häufig mit h für "Heuristik" bezeichnet. Diese Funktion wird durch das Interface EstimationFunction<N> definiert, dessen einzige Methode double getEstimatedDistance(N node, N destination) die Distanz zwischen den Knoten node und destination schätzt.
+Die von Ihnen implementierten konkreten Ausprägungen der Suche sollen dann durch die Klasse de.jpp.model.factory.SearchFactory<N, A> mit folgenden Methoden erstellt werden können:
+
+<G extends Graph<N, A>> SearchAlgorithm<N, A, G> getDepthFirstSearch(G graph, N start):
+Erstellt einen Suchalgorithmus, der eine Tiefensuche auf einem beliebigen Graph durchführt. Der Ausgangspunkt der Suche ist start.
+<G extends Graph<N, A>> SearchAlgorithm<N, A, G> getBreadthFirstSearch(G graph, N start):
+Erstellt einen Suchalgorithmus, der eine Breitensuche auf einem beliebigen Graph durchführt. Der Ausgangspunkt der Suche ist start.
+<G extends WeightedGraph<N, A>> SearchAlgorithm<N, A, G> getDijkstra(G graph, N start):
+Erstellt einen Suchalgorithmus, der eine Dijkstra-Suche auf einem gewichteten Graphen durchführt. Der Ausgangspunkt der Suche ist start.
+<G extends WeightedGraph<N, A>> SearchAlgorithm<N, A, G> getAStar(G graph, N start, N dest, EstimationFunction<N> estToDest):
+Erstellt einen Suchalgorithmus, der eine A*-Suche vom Ausgangspunkt start zum Ziel dest auf einem gewichteten Graphen durchführt.

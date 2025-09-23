@@ -1,0 +1,11 @@
+Teil 2 Aufgabe 3: Einlesen von Bildern
+Neben den etablierten Graph-Formaten wollen wir auch Bilder von Labyrinthen als Graphen interpretieren können. In einem Bild interpretieren wir alle dunklen Pixel als Mauer und alle Hellen als Weg. Zwei Wegzellen sind mit Distanz 1 verbunden, wenn sie benachbart sind. Aus dem linken 5x5 Pixelbild entsteht also folgender Graph:
+
+Labyrinth Labyrinth (Details)
+
+Dabei sind Knoten im rechten Bild grün gezeichnet, Kanten mit Gewicht 1 in Orange. Die Knoten haben die 2D-Position (1|1), (1|2), (1|3), (2|3), (3|3), (3|2), und (3|1). Ein Knoten zählt dabei als "dunkel" bzw. Wand, wenn der HSB-Helligkeitswert eines Pixel (echt) kleiner als 0,5 ist. Bei guter API-Arbeit ist nicht notwendig, den Code zur Umwandlung von Farbformaten selbst zu schreiben!
+
+Stellen sie eine weitere Factory-Methode in de.jpp.factory.IOFactory zur Verfügung, die ein Bild (gegeben als BufferedImage) als TwoDimGraph einliest:
+
+GraphReader<XYNode, Double, TwoDimGraph, BufferedImage> getTwoDimImgReader():
+Erstellt einen GraphReader, der einen TwoDimGraph aus einem pixelbasiertem BufferedImage rekonstruiert.
