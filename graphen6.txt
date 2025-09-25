@@ -1,0 +1,19 @@
+Sie dürfen für den Rest der Aufgabe davon ausgehen, dass die Graphen stets zusammenhängen sind.
+
+EulerCycle
+Das Problem ist "einfach" und liegt in der Komplexitätsklasse P, lässt sich also in polynomieller Zeit lösen. Es existiert auch eine Bedingung, die aussagt, ob ein Graph einen Eulerkreis besitzt, ohne ihn genau zu berechnen. Diese sollen Sie nun zunächst implementieren.
+
+boolean isEulerian(G graph):
+Ein gerichteter Graph ist "eulersch" genau dann, wenn für jeden Knoten die Anzahl an eingehenden Knoten der Anzahl an ausgehenden entspricht. Implementieren Sie diese Überprüfung für den übergebenen Graphen graph und geben sie true zurück, wenn dieser eulersch ist, ansonsten false. Der Kreis selbst lässt sich dann auch leicht berechnen. Dies geschieht über den Algorithmus von Hierholzer, den Sie nun implementieren sollen.
+Optional<Collection<Edge<N, A>>> getCycle(G graph, N startNode):
+Ist der übergebene Graph nicht eulersch oder enthält keine Knoten, so geben Sie ein leeres Optional zurück.
+Andernfalls führen Sie folgenden Algorithmus durch und geben Sie die Reihenfolge der Kanten zurück.
+Beginnen Sie Ihren Eulerkreis am Knoten startNode.
+
+Gehen Sie nun wie folgt vor:
+1) Konstruieren Sie einen zusammenhängenden Kreis mit Kanten aus dem Graphen, beginnend ab dem Startknoten.
+2) Ist der so gefundene Kreis ein Eulerkreis, so sind Sie fertig und können die Kanten des Kreises in der richtigen Reihenfolge in einem Optional zurückgeben.
+  3a) Andernfalls suchen Sie den Kreis nach einem Knoten ab, der noch ausgehende Kanten hat, die nicht Teil des Kreises sind.
+  3b) Bilden Sie ausgehend von diesem Knoten einen weiteren Kreis, der nur Kanten enthält, die noch nicht in Ihrem Kreis enthalten waren.
+  3c) Fügen Sie den so gefundenen Kreis in den ursprünglichen Kreis an der Stelle des Knotens ein.
+  3d) Gehen Sie zu Schritt 2 zurück.

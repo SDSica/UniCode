@@ -1,0 +1,15 @@
+HamiltonianCycle
+
+boolean isHamiltonian(G graph):
+Ein gerichteter Graph enthält einen Hamiltonkreis, wenn für jeden seiner Knoten gilt, dass die Summe der eingehenden und ausgehenden Kanten mindestens so groß ist wie die Anzahl der Knoten im Graph. Nutzen Sie den übergebenen Graphen graph und geben sie true zurück, wenn dieser die vorherige Bedingung erfüllt, ansonsten false. Da es im Moment keinen Algorithmus zur effizienten Lösung gibt, ist die einfachste Möglichkeit, alle Lösungen durchzuprobieren. In diesem Fall bedeutet das, alle Permutationen von Knoten zu bestimmen und zu überprüfen, ob sie einen Kreis bilden. Dazu müssen Sie zunächst alle Permutationen erzeugen. Dies funktioniert mit dem Algorithmus von Heap. Lesen Sie sich unbedingt zunächst die Beschreibung des Algorithmus durch, bevor Sie mit der Implementierung beginnen!
+<T> Set<List<T>> generatePermutations(List<T> input):
+Geben Sie alle Permutationen der Liste input zurück.
+Nutzen Sie eine Hilfsmethode
+static <T> void heapPermute(int n, List<T> arr, Set<List<T>> result).
+Diese enthält einen Parameter n, der für die Rekursion genutzt wird und grob gesagt ausdrückt, welches Element aus der originalen Liste sich gerade angeschaut wird.
+arr ist die Liste, von der die Permutationen bestimmt werden sollen, und result die Menge an Permutationen, die stetig aktualisiert wird.
+
+Diesen Algorithmus können Sie nun verwenden, um nach einem Hamiltonkreis zu suchen.
+
+Optional<Collection<Edge<N, A>>> getCycle(G graph):
+Suchen Sie im übergebenen Graphen graph nach einem Hamiltonkreis und geben Sie diesen in einem Optional zurück. Sollten Sie keinen finden, so geben Sie ein leeres Optional zurück. Erzeugen Sie sich dazu eine Liste, die alle Permutationen der Knoten enthält und untersuchen Sie, ob Nachbarn miteinander eine Kante haben und Sie somit insgesamt einen Kreis bilden können.
